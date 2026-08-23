@@ -32,7 +32,8 @@ onMounted(() => {
                         class="group flex items-center gap-3"
                     >
                         <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-brand-50 to-brand-100 text-base font-semibold text-brand-700">
-                            {{ category.name[0] }}
+                            <span v-if="category.icon" class="text-xl leading-none">{{ category.icon }}</span>
+                            <template v-else>{{ category.name[0] }}</template>
                         </span>
                         <span class="min-w-0 flex-1">
                             <span class="block font-medium text-ink-900 group-hover:text-brand-700">{{ category.name }}</span>
@@ -50,6 +51,7 @@ onMounted(() => {
                             :to="{ name: 'categories.show', params: { slug: child.slug } }"
                             class="chip"
                         >
+                            <span v-if="child.icon">{{ child.icon }}</span>
                             {{ child.name }}
                             <span class="text-xs text-ink-400">{{ child.threads_count ?? 0 }}</span>
                         </router-link>

@@ -29,7 +29,8 @@ watch(() => route.params.slug, load);
         <div class="mt-3 mb-6 flex items-start justify-between gap-4">
             <div v-if="forum.currentCategory" class="flex items-center gap-3">
                 <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-50 to-brand-100 text-lg font-semibold text-brand-700">
-                    {{ forum.currentCategory.name[0] }}
+                    <span v-if="forum.currentCategory.icon" class="text-2xl leading-none">{{ forum.currentCategory.icon }}</span>
+                    <template v-else>{{ forum.currentCategory.name[0] }}</template>
                 </span>
                 <div>
                     <h1 class="text-2xl font-semibold tracking-tight text-ink-900">{{ forum.currentCategory.name }}</h1>
@@ -53,6 +54,7 @@ watch(() => route.params.slug, load);
                 :to="{ name: 'categories.show', params: { slug: child.slug } }"
                 class="chip"
             >
+                <span v-if="child.icon">{{ child.icon }}</span>
                 {{ child.name }}
                 <span class="text-xs text-ink-400">{{ child.threads_count ?? 0 }}</span>
             </router-link>

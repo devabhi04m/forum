@@ -59,7 +59,7 @@ class AdminDashboardController extends Controller
                     ->withCount('threads')
                     ->orderByDesc('threads_count')
                     ->limit(5)
-                    ->get(['id', 'name', 'slug']),
+                    ->get(['id', 'name', 'slug', 'icon']),
             ],
         ]);
     }

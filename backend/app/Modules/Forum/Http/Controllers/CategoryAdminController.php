@@ -35,6 +35,7 @@ class CategoryAdminController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:100'],
             'description' => ['nullable', 'string', 'max:500'],
+            'icon' => ['nullable', 'string', 'max:16'],
             'parent_id' => ['nullable', 'integer', 'exists:forum_categories,id'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
         ]);
@@ -43,6 +44,7 @@ class CategoryAdminController extends Controller
             'name' => $data['name'],
             'slug' => Str::slug($data['name']),
             'description' => $data['description'] ?? null,
+            'icon' => $data['icon'] ?? null,
             'parent_id' => $data['parent_id'] ?? null,
             'sort_order' => $data['sort_order'] ?? 0,
             'is_active' => true,
@@ -60,6 +62,7 @@ class CategoryAdminController extends Controller
         $data = $request->validate([
             'name' => ['sometimes', 'string', 'max:100'],
             'description' => ['nullable', 'string', 'max:500'],
+            'icon' => ['sometimes', 'nullable', 'string', 'max:16'],
             'sort_order' => ['sometimes', 'integer', 'min:0'],
             'is_active' => ['sometimes', 'boolean'],
         ]);

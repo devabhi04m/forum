@@ -8,12 +8,15 @@ const loading = ref(true);
 const error = ref(null);
 const categories = ref([]);
 
-const newCategory = ref({ name: '', description: '', parent_id: '' });
+const newCategory = ref({ name: '', description: '', icon: '', parent_id: '' });
 const creating = ref(false);
 
 const editingSlug = ref(null);
-const editForm = ref({ name: '', description: '', sort_order: 0 });
+const editForm = ref({ name: '', description: '', icon: '', sort_order: 0 });
 const saving = ref(false);
+
+// quick picks for the icon field; anything typed/pasted works too
+const EMOJI = ['💻', '🎮', '🎬', '🎵', '📚', '🏀', '✈️', '🍕', '🔧', '💬', '📣', '❓'];
 
 // parents first, each followed by its children, with depth for indenting
 const flat = computed(() =>
@@ -41,9 +44,10 @@ async function create() {
         await adminApi.createCategory({
             name: newCategory.value.name,
             description: newCategory.value.description || null,
+            icon: newCategory.value.icon || null,
             parent_id: newCategory.value.parent_id || null,
         });
-        newCategory.value = { name: '', description: '', parent_id: '' };
+        newCategory.value = { name: '', description: '', icon: '', parent_id: '' };
         await load();
     } catch (err) {
         error.value = err.response?.data?.message || 'Could not create the category.';
@@ -57,6 +61,7 @@ function startEdit(category) {
     editForm.value = {
         name: category.name,
         description: category.description ?? '',
+        icon: category.icon ?? '',
         sort_order: category.sort_order ?? 0,
     };
 }
@@ -68,6 +73,7 @@ async function saveEdit() {
         await adminApi.updateCategory(editingSlug.value, {
             name: editForm.value.name,
             description: editForm.value.description || null,
+            icon: editForm.value.icon || null,
             sort_order: Number(editForm.value.sort_order) || 0,
         });
         editingSlug.value = null;
@@ -115,25 +121,44 @@ onMounted(load);
 
         <p v-if="error" class="alert-error mt-4">{{ error }}</p>
 
-        <form class="card mt-4 flex flex-wrap items-end gap-3 p-4" @submit.prevent="create">
-            <div class="min-w-40 flex-1">
-                <label class="field-label" for="cat-name">Name</label>
-                <input id="cat-name" v-model="newCategory.name" required maxlength="100" class="input" placeholder="New category" />
+        <form class="card mt-4 rounded-2xl p-4" @submit.prevent="create">
+            <div class="flex flex-wrap items-end gap-3">
+                <div class="w-20">
+                    <label class="field-label" for="cat-icon">Icon</label>
+                    <input id="cat-icon" v-model="newCategory.icon" maxlength="16" class="input text-center text-lg" placeholder="🙂" />
+                </div>
+                <div class="min-w-40 flex-1">
+                    <label class="field-label" for="cat-name">Name</label>
+                    <input id="cat-name" v-model="newCategory.name" required maxlength="100" class="input" placeholder="New category" />
+                </div>
+                <div class="min-w-40 flex-1">
+                    <label class="field-label" for="cat-desc">Description</label>
+                    <input id="cat-desc" v-model="newCategory.description" maxlength="500" class="input" placeholder="Optional" />
+                </div>
+                <div class="min-w-40">
+                    <label class="field-label" for="cat-parent">Parent</label>
+                    <select id="cat-parent" v-model="newCategory.parent_id" class="input">
+                        <option value="">None (top level)</option>
+                        <option v-for="c in categories" :key="c.id" :value="c.id">{{ c.name }}</option>
+                    </select>
+                </div>
+                <button type="submit" :disabled="creating" class="btn-primary">
+                    {{ creating ? 'Adding...' : 'Add' }}
+                </button>
             </div>
-            <div class="min-w-40 flex-1">
-                <label class="field-label" for="cat-desc">Description</label>
-                <input id="cat-desc" v-model="newCategory.description" maxlength="500" class="input" placeholder="Optional" />
+            <div class="mt-3 flex flex-wrap items-center gap-1">
+                <span class="mr-1 text-xs text-ink-400">Quick picks:</span>
+                <button
+                    v-for="emoji in EMOJI"
+                    :key="emoji"
+                    type="button"
+                    class="rounded-lg px-1.5 py-0.5 text-lg transition hover:bg-ink-100"
+                    :class="newCategory.icon === emoji && 'bg-brand-50 ring-1 ring-brand-300'"
+                    @click="newCategory.icon = newCategory.icon === emoji ? '' : emoji"
+                >
+                    {{ emoji }}
+                </button>
             </div>
-            <div class="min-w-40">
-                <label class="field-label" for="cat-parent">Parent</label>
-                <select id="cat-parent" v-model="newCategory.parent_id" class="input">
-                    <option value="">None (top level)</option>
-                    <option v-for="c in categories" :key="c.id" :value="c.id">{{ c.name }}</option>
-                </select>
-            </div>
-            <button type="submit" :disabled="creating" class="btn-primary">
-                {{ creating ? 'Adding...' : 'Add' }}
-            </button>
         </form>
 
         <div v-if="loading" class="mt-4 space-y-3">
@@ -144,6 +169,10 @@ onMounted(load);
             <div v-for="category in flat" :key="category.id" class="p-4 transition hover:bg-ink-50/70">
                 <!-- edit mode -->
                 <div v-if="editingSlug === category.slug" class="flex flex-wrap items-end gap-3">
+                    <div class="w-20">
+                        <label class="field-label">Icon</label>
+                        <input v-model="editForm.icon" maxlength="16" class="input text-center text-lg" placeholder="🙂" />
+                    </div>
                     <div class="min-w-36 flex-1">
                         <label class="field-label">Name</label>
                         <input v-model="editForm.name" required maxlength="100" class="input" />
@@ -168,6 +197,7 @@ onMounted(load);
                 <div v-else class="flex flex-wrap items-center justify-between gap-3">
                     <div class="min-w-0" :class="category.depth && 'pl-5'">
                         <p class="text-sm font-medium text-ink-900">
+                            <span v-if="category.icon" class="mr-1">{{ category.icon }}</span>
                             {{ category.name }}
                             <span v-if="!category.is_active" class="ml-1 rounded-full bg-ink-100 px-2 py-0.5 text-[10px] font-semibold text-ink-500 uppercase">Inactive</span>
                         </p>

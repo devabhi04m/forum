@@ -182,6 +182,7 @@ onMounted(async () => {
                                 :to="{ name: 'categories.show', params: { slug: category.slug } }"
                                 class="font-medium text-ink-700 hover:text-brand-600"
                             >
+                                <span v-if="category.icon" class="mr-0.5">{{ category.icon }}</span>
                                 {{ category.name }}
                             </router-link>
                             <span class="text-xs text-ink-400">{{ category.threads_count }} threads</span>
