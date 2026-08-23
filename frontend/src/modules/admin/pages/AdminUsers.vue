@@ -1,6 +1,9 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import adminApi from '../services/adminApi';
+import icons from '../icons';
+import AdminPageHeader from '../components/AdminPageHeader.vue';
+import UserAvatar from '../../../components/UserAvatar.vue';
 import { useAuthStore } from '../../auth/stores/auth';
 import { timeAgo } from '../../../utils/date';
 
@@ -69,8 +72,13 @@ onMounted(load);
 
 <template>
     <div>
-        <h1 class="text-2xl font-semibold tracking-tight text-ink-900">Users</h1>
-        <p class="mt-1 text-sm text-ink-500">Search members, change roles, ban and unban accounts.</p>
+        <AdminPageHeader
+            title="Users"
+            subtitle="Search members, change roles, ban and unban accounts."
+            :icon="icons.users"
+            :count="meta?.total ?? null"
+            count-label="members"
+        />
 
         <form class="mt-4 flex gap-2" @submit.prevent="onSearch">
             <input v-model="search" type="search" class="input max-w-xs" placeholder="Search by name or email..." />
@@ -83,18 +91,21 @@ onMounted(load);
             <div v-for="n in 5" :key="n" class="h-16 animate-pulse rounded-xl bg-ink-100"></div>
         </div>
 
-        <div v-else-if="users.length" class="card mt-4 divide-y divide-ink-100">
-            <div v-for="user in users" :key="user.id" class="flex flex-wrap items-center justify-between gap-3 p-4">
-                <div class="min-w-0">
-                    <p class="text-sm font-medium text-ink-900">
-                        {{ user.name }}
-                        <span v-if="user.id === auth.user?.id" class="ml-1 rounded bg-ink-100 px-1.5 py-0.5 text-[10px] font-semibold text-ink-500 uppercase">You</span>
-                        <span v-if="user.role !== 'user'" class="ml-1 rounded bg-brand-100 px-1.5 py-0.5 text-[10px] font-semibold text-brand-700 uppercase">{{ user.role }}</span>
-                        <span v-if="user.banned_at" class="ml-1 rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-semibold text-red-700 uppercase">Banned</span>
-                    </p>
-                    <p class="text-xs text-ink-400">
-                        {{ user.email }} · {{ user.threads_count }} threads · {{ user.posts_count }} posts · joined {{ timeAgo(user.created_at) }}
-                    </p>
+        <div v-else-if="users.length" class="card mt-4 divide-y divide-ink-100 overflow-hidden rounded-2xl">
+            <div v-for="user in users" :key="user.id" class="flex flex-wrap items-center justify-between gap-3 p-4 transition hover:bg-ink-50/70">
+                <div class="flex min-w-0 items-center gap-3">
+                    <UserAvatar :name="user.name" size="lg" />
+                    <div class="min-w-0">
+                        <p class="text-sm font-medium text-ink-900">
+                            {{ user.name }}
+                            <span v-if="user.id === auth.user?.id" class="ml-1 rounded-full bg-ink-100 px-2 py-0.5 text-[10px] font-semibold text-ink-500 uppercase">You</span>
+                            <span v-if="user.role !== 'user'" class="ml-1 rounded-full bg-brand-100 px-2 py-0.5 text-[10px] font-semibold text-brand-700 uppercase">{{ user.role }}</span>
+                            <span v-if="user.banned_at" class="ml-1 rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-semibold text-rose-700 uppercase">Banned</span>
+                        </p>
+                        <p class="text-xs text-ink-400">
+                            {{ user.email }} · {{ user.threads_count }} threads · {{ user.posts_count }} posts · joined {{ timeAgo(user.created_at) }}
+                        </p>
+                    </div>
                 </div>
                 <div v-if="user.role !== 'admin'" class="flex shrink-0 items-center gap-2">
                     <select class="input !w-auto !px-2 !py-1 text-xs" :value="user.role" @change="changeRole(user, $event)">

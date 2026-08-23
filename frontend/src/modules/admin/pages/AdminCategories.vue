@@ -1,6 +1,8 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import adminApi from '../services/adminApi';
+import icons from '../icons';
+import AdminPageHeader from '../components/AdminPageHeader.vue';
 
 const loading = ref(true);
 const error = ref(null);
@@ -103,8 +105,13 @@ onMounted(load);
 
 <template>
     <div>
-        <h1 class="text-2xl font-semibold tracking-tight text-ink-900">Categories</h1>
-        <p class="mt-1 text-sm text-ink-500">Create, edit, reorder, activate and delete forum categories.</p>
+        <AdminPageHeader
+            title="Categories"
+            subtitle="Create, edit, reorder, activate and delete forum categories."
+            :icon="icons.categories"
+            :count="loading ? null : flat.length"
+            count-label="categories"
+        />
 
         <p v-if="error" class="alert-error mt-4">{{ error }}</p>
 
@@ -133,8 +140,8 @@ onMounted(load);
             <div v-for="n in 4" :key="n" class="h-16 animate-pulse rounded-xl bg-ink-100"></div>
         </div>
 
-        <div v-else-if="flat.length" class="card mt-4 divide-y divide-ink-100">
-            <div v-for="category in flat" :key="category.id" class="p-4">
+        <div v-else-if="flat.length" class="card mt-4 divide-y divide-ink-100 overflow-hidden rounded-2xl">
+            <div v-for="category in flat" :key="category.id" class="p-4 transition hover:bg-ink-50/70">
                 <!-- edit mode -->
                 <div v-if="editingSlug === category.slug" class="flex flex-wrap items-end gap-3">
                     <div class="min-w-36 flex-1">
@@ -162,7 +169,7 @@ onMounted(load);
                     <div class="min-w-0" :class="category.depth && 'pl-5'">
                         <p class="text-sm font-medium text-ink-900">
                             {{ category.name }}
-                            <span v-if="!category.is_active" class="ml-1 rounded bg-ink-100 px-1.5 py-0.5 text-[10px] font-semibold text-ink-500 uppercase">Inactive</span>
+                            <span v-if="!category.is_active" class="ml-1 rounded-full bg-ink-100 px-2 py-0.5 text-[10px] font-semibold text-ink-500 uppercase">Inactive</span>
                         </p>
                         <p class="text-xs text-ink-400">
                             {{ category.threads_count ?? 0 }} threads · order {{ category.sort_order ?? 0 }}

@@ -1,6 +1,8 @@
 <script setup>
 import { onMounted, ref, watch } from 'vue';
 import adminApi from '../services/adminApi';
+import icons from '../icons';
+import AdminPageHeader from '../components/AdminPageHeader.vue';
 import { timeAgo } from '../../../utils/date';
 
 const loading = ref(false);
@@ -94,8 +96,13 @@ onMounted(load);
 
 <template>
     <div>
-        <h1 class="text-2xl font-semibold tracking-tight text-ink-900">Threads</h1>
-        <p class="mt-1 text-sm text-ink-500">Every thread on the forum — pin, lock, hide, delete or restore.</p>
+        <AdminPageHeader
+            title="Threads"
+            subtitle="Every thread on the forum — pin, lock, hide, delete or restore."
+            :icon="icons.threads"
+            :count="meta?.total ?? null"
+            count-label="threads"
+        />
 
         <div class="mt-4 flex flex-wrap items-center gap-2">
             <button
@@ -120,8 +127,8 @@ onMounted(load);
             <div v-for="n in 5" :key="n" class="h-20 animate-pulse rounded-xl bg-ink-100"></div>
         </div>
 
-        <div v-else-if="threads.length" class="card mt-4 divide-y divide-ink-100">
-            <div v-for="thread in threads" :key="thread.id" class="p-4">
+        <div v-else-if="threads.length" class="card mt-4 divide-y divide-ink-100 overflow-hidden rounded-2xl">
+            <div v-for="thread in threads" :key="thread.id" class="p-4 transition hover:bg-ink-50/70">
                 <div class="flex flex-wrap items-start justify-between gap-3">
                     <div class="min-w-0">
                         <router-link
@@ -135,10 +142,10 @@ onMounted(load);
 
                         <p class="mt-1 text-xs text-ink-400">
                             {{ thread.user?.name }} · {{ thread.category?.name }} · {{ thread.replies_count }} replies · {{ thread.views_count }} views · {{ timeAgo(thread.created_at) }}
-                            <span v-if="thread.is_pinned" class="ml-1 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 uppercase">Pinned</span>
-                            <span v-if="thread.is_locked" class="ml-1 rounded bg-ink-100 px-1.5 py-0.5 text-[10px] font-semibold text-ink-500 uppercase">Locked</span>
-                            <span v-if="thread.status === 'hidden'" class="ml-1 rounded bg-ink-100 px-1.5 py-0.5 text-[10px] font-semibold text-ink-500 uppercase">Hidden</span>
-                            <span v-if="thread.deleted_at" class="ml-1 rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-semibold text-red-700 uppercase">Deleted</span>
+                            <span v-if="thread.is_pinned" class="ml-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700 uppercase">Pinned</span>
+                            <span v-if="thread.is_locked" class="ml-1 rounded-full bg-ink-100 px-2 py-0.5 text-[10px] font-semibold text-ink-500 uppercase">Locked</span>
+                            <span v-if="thread.status === 'hidden'" class="ml-1 rounded-full bg-ink-100 px-2 py-0.5 text-[10px] font-semibold text-ink-500 uppercase">Hidden</span>
+                            <span v-if="thread.deleted_at" class="ml-1 rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-semibold text-rose-700 uppercase">Deleted</span>
                         </p>
                     </div>
 

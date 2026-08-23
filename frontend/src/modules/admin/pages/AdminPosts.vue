@@ -1,6 +1,8 @@
 <script setup>
 import { onMounted, ref, watch } from 'vue';
 import adminApi from '../services/adminApi';
+import icons from '../icons';
+import AdminPageHeader from '../components/AdminPageHeader.vue';
 import { timeAgo } from '../../../utils/date';
 
 const loading = ref(false);
@@ -72,8 +74,13 @@ onMounted(load);
 
 <template>
     <div>
-        <h1 class="text-2xl font-semibold tracking-tight text-ink-900">Posts</h1>
-        <p class="mt-1 text-sm text-ink-500">Every reply on the forum — search, delete and restore.</p>
+        <AdminPageHeader
+            title="Posts"
+            subtitle="Every reply on the forum — search, delete and restore."
+            :icon="icons.posts"
+            :count="meta?.total ?? null"
+            count-label="posts"
+        />
 
         <div class="mt-4 flex flex-wrap items-center gap-2">
             <button type="button" class="chip" :class="status === '' && '!border-brand-400 !bg-brand-50 !text-brand-700'" @click="status = ''">
@@ -94,14 +101,14 @@ onMounted(load);
             <div v-for="n in 5" :key="n" class="h-20 animate-pulse rounded-xl bg-ink-100"></div>
         </div>
 
-        <div v-else-if="posts.length" class="card mt-4 divide-y divide-ink-100">
-            <div v-for="post in posts" :key="post.id" class="p-4">
+        <div v-else-if="posts.length" class="card mt-4 divide-y divide-ink-100 overflow-hidden rounded-2xl">
+            <div v-for="post in posts" :key="post.id" class="p-4 transition hover:bg-ink-50/70">
                 <div class="flex flex-wrap items-start justify-between gap-3">
                     <div class="min-w-0">
                         <p class="text-sm text-ink-700" :class="post.deleted_at && 'text-ink-400 line-through'">{{ post.excerpt }}</p>
                         <p class="mt-1 text-xs text-ink-400">
                             {{ post.user?.name }} · {{ post.likes_count }} likes · {{ timeAgo(post.created_at) }}
-                            <span v-if="post.deleted_at" class="ml-1 rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-semibold text-red-700 uppercase">Deleted</span>
+                            <span v-if="post.deleted_at" class="ml-1 rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-semibold text-rose-700 uppercase">Deleted</span>
                         </p>
                         <router-link
                             v-if="post.thread"

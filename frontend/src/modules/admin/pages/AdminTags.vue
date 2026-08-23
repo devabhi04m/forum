@@ -1,6 +1,8 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import adminApi from '../services/adminApi';
+import icons from '../icons';
+import AdminPageHeader from '../components/AdminPageHeader.vue';
 
 const loading = ref(true);
 const error = ref(null);
@@ -73,8 +75,13 @@ onMounted(load);
 
 <template>
     <div>
-        <h1 class="text-2xl font-semibold tracking-tight text-ink-900">Tags</h1>
-        <p class="mt-1 text-sm text-ink-500">Create, rename and delete the tags used on threads.</p>
+        <AdminPageHeader
+            title="Tags"
+            subtitle="Create, rename and delete the tags used on threads."
+            :icon="icons.tags"
+            :count="loading ? null : tags.length"
+            count-label="tags"
+        />
 
         <p v-if="error" class="alert-error mt-4">{{ error }}</p>
 
@@ -92,8 +99,8 @@ onMounted(load);
             <div v-for="n in 4" :key="n" class="h-14 animate-pulse rounded-xl bg-ink-100"></div>
         </div>
 
-        <div v-else-if="tags.length" class="card mt-4 divide-y divide-ink-100">
-            <div v-for="tag in tags" :key="tag.id" class="flex flex-wrap items-center justify-between gap-3 p-4">
+        <div v-else-if="tags.length" class="card mt-4 divide-y divide-ink-100 overflow-hidden rounded-2xl">
+            <div v-for="tag in tags" :key="tag.id" class="flex flex-wrap items-center justify-between gap-3 p-4 transition hover:bg-ink-50/70">
                 <div v-if="editingSlug === tag.slug" class="flex flex-1 items-center gap-2">
                     <input v-model="editName" maxlength="50" class="input !w-56" @keyup.enter="saveEdit" />
                     <button type="button" :disabled="saving" class="btn-primary !px-3 !py-1.5 text-sm" @click="saveEdit">
