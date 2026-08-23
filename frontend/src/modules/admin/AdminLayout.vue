@@ -33,6 +33,10 @@ const sections = [
             { name: 'admin.reports', label: 'Reports', icon: icons.reports },
         ],
     },
+    {
+        label: 'System',
+        items: [{ name: 'admin.dummy', label: 'Dummy data', icon: icons.database }],
+    },
 ];
 
 const pageTitle = computed(() => {

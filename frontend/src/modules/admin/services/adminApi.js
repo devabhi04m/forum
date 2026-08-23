@@ -69,6 +69,17 @@ export default {
         return api.post(`/forum/admin/posts/${id}/restore`);
     },
 
+    // dummy data
+    getDummyStatus() {
+        return api.get('/forum/admin/dummy-data');
+    },
+    importDummyData(payload) {
+        return api.post('/forum/admin/dummy-data', payload);
+    },
+    deleteDummyData() {
+        return api.delete('/forum/admin/dummy-data');
+    },
+
     // tags
     getTags() {
         return api.get('/forum/admin/tags');

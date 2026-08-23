@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\NotificationController;
 use App\Modules\Forum\Http\Controllers\AdminDashboardController;
+use App\Modules\Forum\Http\Controllers\AdminDummyDataController;
 use App\Modules\Forum\Http\Controllers\AdminPostController;
 use App\Modules\Forum\Http\Controllers\AdminTagController;
 use App\Modules\Forum\Http\Controllers\AdminThreadController;
@@ -100,6 +101,10 @@ Route::prefix('forum')->name('forum.')->group(function () {
             Route::get('posts', [AdminPostController::class, 'index'])->name('posts.index');
             Route::delete('posts/{post}', [AdminPostController::class, 'destroy'])->withTrashed()->name('posts.destroy');
             Route::post('posts/{post}/restore', [AdminPostController::class, 'restore'])->withTrashed()->name('posts.restore');
+
+            Route::get('dummy-data', [AdminDummyDataController::class, 'status'])->name('dummy.status');
+            Route::post('dummy-data', [AdminDummyDataController::class, 'store'])->name('dummy.store');
+            Route::delete('dummy-data', [AdminDummyDataController::class, 'destroy'])->name('dummy.destroy');
 
             Route::get('tags', [AdminTagController::class, 'index'])->name('tags.index');
             Route::post('tags', [AdminTagController::class, 'store'])->name('tags.store');
