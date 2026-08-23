@@ -41,7 +41,7 @@ class ReportController extends Controller
 
     public function index(Request $request): AnonymousResourceCollection
     {
-        $this->authorize('moderate', Thread::class);
+        abort_unless($request->user()->can('manage-reports'), 403);
 
         $reports = Report::query()
             ->with(['reporter', 'thread:id,title,slug', 'post:id,thread_id,content', 'post.thread:id,title,slug'])
@@ -58,7 +58,7 @@ class ReportController extends Controller
 
     public function update(Request $request, Report $report): ReportResource
     {
-        $this->authorize('moderate', Thread::class);
+        abort_unless($request->user()->can('manage-reports'), 403);
 
         $data = $request->validate([
             'status' => ['required', 'in:resolved,dismissed'],

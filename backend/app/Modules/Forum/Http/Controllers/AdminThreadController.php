@@ -13,7 +13,7 @@ class AdminThreadController extends Controller
     // every thread regardless of status, including soft-deleted ones
     public function index(Request $request): JsonResponse
     {
-        abort_unless($request->user()->isAdmin(), 403);
+        abort_unless($request->user()->can('manage-threads'), 403);
 
         $status = $request->query('status');
 
@@ -51,7 +51,7 @@ class AdminThreadController extends Controller
     // first delete is a soft delete; deleting an already-trashed thread is permanent
     public function destroy(Request $request, Thread $thread): Response
     {
-        abort_unless($request->user()->isAdmin(), 403);
+        abort_unless($request->user()->can('manage-threads'), 403);
 
         $thread->trashed() ? $thread->forceDelete() : $thread->delete();
 
@@ -60,7 +60,7 @@ class AdminThreadController extends Controller
 
     public function restore(Request $request, Thread $thread): JsonResponse
     {
-        abort_unless($request->user()->isAdmin(), 403);
+        abort_unless($request->user()->can('manage-threads'), 403);
         abort_unless($thread->trashed(), 422, 'Thread is not deleted.');
 
         $thread->restore();

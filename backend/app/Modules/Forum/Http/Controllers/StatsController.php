@@ -11,9 +11,9 @@ use Illuminate\Http\JsonResponse;
 
 class StatsController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(\Illuminate\Http\Request $request): JsonResponse
     {
-        $this->authorize('moderate', Thread::class);
+        abort_unless($request->user()->can('view-stats'), 403);
 
         $weekAgo = now()->subWeek();
 

@@ -14,13 +14,16 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
 
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, HasRoles, Notifiable;
+
+    protected string $guard_name = 'api';
 
     /**
      * Get the attributes that should be cast.
@@ -36,14 +39,16 @@ class User extends Authenticatable
         ];
     }
 
+    // roles and permissions live in spatie/laravel-permission; the old `role`
+    // column sticks around as a denormalized display value kept in sync on change
     public function isModerator(): bool
     {
-        return in_array($this->role, ['moderator', 'admin']);
+        return $this->can('moderate-threads');
     }
 
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return $this->hasRole('admin');
     }
 
     public function isBanned(): bool

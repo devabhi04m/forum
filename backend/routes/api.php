@@ -5,6 +5,7 @@ use App\Http\Controllers\NotificationController;
 use App\Modules\Forum\Http\Controllers\AdminDashboardController;
 use App\Modules\Forum\Http\Controllers\AdminDummyDataController;
 use App\Modules\Forum\Http\Controllers\AdminPostController;
+use App\Modules\Forum\Http\Controllers\AdminRoleController;
 use App\Modules\Forum\Http\Controllers\AdminTagController;
 use App\Modules\Forum\Http\Controllers\AdminThreadController;
 use App\Modules\Forum\Http\Controllers\BookmarkController;
@@ -25,7 +26,12 @@ use Illuminate\Support\Facades\Route;
 Route::post('/register', RegisterController::class)->middleware('throttle:10,1')->name('register');
 
 Route::get('/user', function () {
-    return request()->user();
+    $user = request()->user();
+
+    return array_merge($user->toArray(), [
+        'roles' => $user->getRoleNames(),
+        'permissions' => $user->getAllPermissions()->pluck('name'),
+    ]);
 })->middleware('auth:api');
 
 Route::middleware(['auth:api', 'not_banned'])->prefix('notifications')->name('notifications.')->group(function () {
@@ -101,6 +107,15 @@ Route::prefix('forum')->name('forum.')->group(function () {
             Route::get('posts', [AdminPostController::class, 'index'])->name('posts.index');
             Route::delete('posts/{post}', [AdminPostController::class, 'destroy'])->withTrashed()->name('posts.destroy');
             Route::post('posts/{post}/restore', [AdminPostController::class, 'restore'])->withTrashed()->name('posts.restore');
+
+            Route::get('roles', [AdminRoleController::class, 'index'])->name('roles.index');
+            Route::post('roles', [AdminRoleController::class, 'store'])->name('roles.store');
+            Route::put('roles/{role}', [AdminRoleController::class, 'update'])->name('roles.update');
+            Route::delete('roles/{role}', [AdminRoleController::class, 'destroy'])->name('roles.destroy');
+
+            Route::get('permissions', [AdminRoleController::class, 'permissions'])->name('permissions.index');
+            Route::post('permissions', [AdminRoleController::class, 'storePermission'])->name('permissions.store');
+            Route::delete('permissions/{permission}', [AdminRoleController::class, 'destroyPermission'])->name('permissions.destroy');
 
             Route::get('dummy-data', [AdminDummyDataController::class, 'status'])->name('dummy.status');
             Route::post('dummy-data', [AdminDummyDataController::class, 'store'])->name('dummy.store');

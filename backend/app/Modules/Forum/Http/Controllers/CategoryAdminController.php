@@ -16,7 +16,7 @@ class CategoryAdminController extends Controller
     // unlike the public endpoint this one includes inactive categories
     public function index(Request $request): JsonResponse
     {
-        abort_unless($request->user()->isAdmin(), 403);
+        abort_unless($request->user()->can('manage-categories'), 403);
 
         $categories = Category::query()
             ->whereNull('parent_id')
@@ -30,7 +30,7 @@ class CategoryAdminController extends Controller
 
     public function store(Request $request): CategoryResource
     {
-        abort_unless($request->user()->isAdmin(), 403);
+        abort_unless($request->user()->can('manage-categories'), 403);
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:100'],
@@ -57,7 +57,7 @@ class CategoryAdminController extends Controller
 
     public function update(Request $request, Category $category): CategoryResource
     {
-        abort_unless($request->user()->isAdmin(), 403);
+        abort_unless($request->user()->can('manage-categories'), 403);
 
         $data = $request->validate([
             'name' => ['sometimes', 'string', 'max:100'],
@@ -77,7 +77,7 @@ class CategoryAdminController extends Controller
 
     public function destroy(Request $request, Category $category): Response
     {
-        abort_unless($request->user()->isAdmin(), 403);
+        abort_unless($request->user()->can('manage-categories'), 403);
         abort_if($category->threads()->exists(), 422, 'Move or delete its threads first.');
         abort_if($category->children()->exists(), 422, 'Delete its subcategories first.');
 

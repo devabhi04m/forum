@@ -23,7 +23,7 @@ class AdminDummyDataController extends Controller
 
     public function status(Request $request): JsonResponse
     {
-        abort_unless($request->user()->isAdmin(), 403);
+        abort_unless($request->user()->can('manage-dummy-data'), 403);
 
         $userIds = $this->dummyUserIds();
 
@@ -39,7 +39,7 @@ class AdminDummyDataController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-        abort_unless($request->user()->isAdmin(), 403);
+        abort_unless($request->user()->can('manage-dummy-data'), 403);
 
         $data = $request->validate([
             'users' => ['nullable', 'integer', 'min:1', 'max:50'],
@@ -128,7 +128,7 @@ class AdminDummyDataController extends Controller
 
     public function destroy(Request $request): JsonResponse
     {
-        abort_unless($request->user()->isAdmin(), 403);
+        abort_unless($request->user()->can('manage-dummy-data'), 403);
 
         $userIds = $this->dummyUserIds();
 

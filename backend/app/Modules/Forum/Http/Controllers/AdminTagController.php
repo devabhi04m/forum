@@ -15,7 +15,7 @@ class AdminTagController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        abort_unless($request->user()->isAdmin(), 403);
+        abort_unless($request->user()->can('manage-tags'), 403);
 
         $tags = Tag::query()
             ->withCount('threads')
@@ -27,7 +27,7 @@ class AdminTagController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-        abort_unless($request->user()->isAdmin(), 403);
+        abort_unless($request->user()->can('manage-tags'), 403);
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:50', Rule::unique('forum_tags', 'name')],
@@ -45,7 +45,7 @@ class AdminTagController extends Controller
 
     public function update(Request $request, Tag $tag): JsonResponse
     {
-        abort_unless($request->user()->isAdmin(), 403);
+        abort_unless($request->user()->can('manage-tags'), 403);
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:50', Rule::unique('forum_tags', 'name')->ignore($tag->id)],
@@ -63,7 +63,7 @@ class AdminTagController extends Controller
 
     public function destroy(Request $request, Tag $tag): Response
     {
-        abort_unless($request->user()->isAdmin(), 403);
+        abort_unless($request->user()->can('manage-tags'), 403);
 
         $tag->threads()->detach();
         $tag->delete();

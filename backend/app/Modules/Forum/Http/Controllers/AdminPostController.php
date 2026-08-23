@@ -14,7 +14,7 @@ class AdminPostController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        abort_unless($request->user()->isAdmin(), 403);
+        abort_unless($request->user()->can('manage-posts'), 403);
 
         $posts = Post::query()
             ->with(['user:id,name', 'thread' => fn ($query) => $query->withTrashed()->select('id', 'title', 'slug')])
@@ -44,7 +44,7 @@ class AdminPostController extends Controller
     // first delete is a soft delete; deleting an already-trashed post is permanent
     public function destroy(Request $request, Post $post): Response
     {
-        abort_unless($request->user()->isAdmin(), 403);
+        abort_unless($request->user()->can('manage-posts'), 403);
 
         if ($post->trashed()) {
             $post->forceDelete();
@@ -77,7 +77,7 @@ class AdminPostController extends Controller
 
     public function restore(Request $request, Post $post): JsonResponse
     {
-        abort_unless($request->user()->isAdmin(), 403);
+        abort_unless($request->user()->can('manage-posts'), 403);
         abort_unless($post->trashed(), 422, 'Post is not deleted.');
 
         DB::transaction(function () use ($post) {

@@ -16,7 +16,7 @@ class AdminDashboardController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        abort_unless($request->user()->isAdmin(), 403);
+        abort_unless($request->user()->can('access-admin-panel'), 403);
 
         $weekAgo = now()->subWeek();
 

@@ -24,6 +24,8 @@ class RegisterController extends Controller
             'password' => Hash::make($data['password']),
         ]);
 
+        $user->assignRole('user');
+
         return response()->json([
             'data' => [
                 'id' => $user->id,
