@@ -20,6 +20,8 @@ import AdminCategories from '../modules/admin/pages/AdminCategories.vue';
 import AdminTags from '../modules/admin/pages/AdminTags.vue';
 import AdminReports from '../modules/admin/pages/AdminReports.vue';
 import AdminDummyData from '../modules/admin/pages/AdminDummyData.vue';
+import AdminRoles from '../modules/admin/pages/AdminRoles.vue';
+import AdminPermissions from '../modules/admin/pages/AdminPermissions.vue';
 
 const routes = [
     { path: '/', name: 'forum.home', component: ForumHome },
@@ -39,6 +41,8 @@ const routes = [
             { path: 'categories', name: 'admin.categories', component: AdminCategories },
             { path: 'tags', name: 'admin.tags', component: AdminTags },
             { path: 'reports', name: 'admin.reports', component: AdminReports },
+            { path: 'roles', name: 'admin.roles', component: AdminRoles },
+            { path: 'permissions', name: 'admin.permissions', component: AdminPermissions },
             { path: 'dummy-data', name: 'admin.dummy', component: AdminDummyData },
         ],
     },

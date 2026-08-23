@@ -12,8 +12,14 @@ export const useAuthStore = defineStore('auth', {
 
     getters: {
         isAuthenticated: (state) => !!state.token,
-        isModerator: (state) => ['moderator', 'admin'].includes(state.user?.role),
-        isAdmin: (state) => state.user?.role === 'admin',
+        // permissions come from the API (spatie); the role fallback covers
+        // sessions cached in localStorage before permissions existed
+        isModerator: (state) =>
+            state.user?.permissions?.includes('moderate-threads') || ['moderator', 'admin'].includes(state.user?.role),
+        isAdmin: (state) =>
+            state.user?.permissions?.includes('access-admin-panel') || state.user?.role === 'admin',
+        can: (state) => (permission) =>
+            state.user?.role === 'admin' || !!state.user?.permissions?.includes(permission),
     },
 
     actions: {

@@ -69,6 +69,29 @@ export default {
         return api.post(`/forum/admin/posts/${id}/restore`);
     },
 
+    // roles & permissions
+    getRoles() {
+        return api.get('/forum/admin/roles');
+    },
+    createRole(payload) {
+        return api.post('/forum/admin/roles', payload);
+    },
+    updateRole(id, payload) {
+        return api.put(`/forum/admin/roles/${id}`, payload);
+    },
+    deleteRole(id) {
+        return api.delete(`/forum/admin/roles/${id}`);
+    },
+    getPermissions() {
+        return api.get('/forum/admin/permissions');
+    },
+    createPermission(payload) {
+        return api.post('/forum/admin/permissions', payload);
+    },
+    deletePermission(id) {
+        return api.delete(`/forum/admin/permissions/${id}`);
+    },
+
     // dummy data
     getDummyStatus() {
         return api.get('/forum/admin/dummy-data');

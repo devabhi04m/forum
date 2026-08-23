@@ -15,6 +15,16 @@ const users = ref([]);
 const meta = ref(null);
 const search = ref('');
 const page = ref(1);
+const roleNames = ref(['user', 'moderator', 'admin']);
+
+async function loadRoles() {
+    try {
+        const { data } = await adminApi.getRoles();
+        roleNames.value = (data.data ?? []).map((role) => role.name);
+    } catch {
+        // fall back to the built-in three if this account can't read roles
+    }
+}
 
 async function load() {
     loading.value = true;
@@ -67,7 +77,10 @@ async function changeRole(user, event) {
     }
 }
 
-onMounted(load);
+onMounted(() => {
+    load();
+    loadRoles();
+});
 </script>
 
 <template>
@@ -108,10 +121,8 @@ onMounted(load);
                     </div>
                 </div>
                 <div v-if="user.role !== 'admin'" class="flex shrink-0 items-center gap-2">
-                    <select class="input !w-auto !px-2 !py-1 text-xs" :value="user.role" @change="changeRole(user, $event)">
-                        <option value="user">User</option>
-                        <option value="moderator">Moderator</option>
-                        <option value="admin">Admin</option>
+                    <select class="input !w-auto !px-2 !py-1 text-xs capitalize" :value="user.role" @change="changeRole(user, $event)">
+                        <option v-for="name in roleNames" :key="name" :value="name">{{ name }}</option>
                     </select>
                     <button
                         type="button"

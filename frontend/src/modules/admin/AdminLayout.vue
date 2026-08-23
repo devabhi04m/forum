@@ -12,35 +12,49 @@ const auth = useAuthStore();
 
 const sidebarOpen = ref(false);
 
-const sections = [
+const allSections = [
     {
         label: 'Overview',
-        items: [{ name: 'admin.dashboard', label: 'Dashboard', icon: icons.dashboard }],
+        items: [{ name: 'admin.dashboard', label: 'Dashboard', icon: icons.dashboard, permission: 'access-admin-panel' }],
     },
     {
         label: 'Content',
         items: [
-            { name: 'admin.threads', label: 'Threads', icon: icons.threads },
-            { name: 'admin.posts', label: 'Posts', icon: icons.posts },
-            { name: 'admin.categories', label: 'Categories', icon: icons.categories },
-            { name: 'admin.tags', label: 'Tags', icon: icons.tags },
+            { name: 'admin.threads', label: 'Threads', icon: icons.threads, permission: 'manage-threads' },
+            { name: 'admin.posts', label: 'Posts', icon: icons.posts, permission: 'manage-posts' },
+            { name: 'admin.categories', label: 'Categories', icon: icons.categories, permission: 'manage-categories' },
+            { name: 'admin.tags', label: 'Tags', icon: icons.tags, permission: 'manage-tags' },
         ],
     },
     {
         label: 'Community',
         items: [
-            { name: 'admin.users', label: 'Users', icon: icons.users },
-            { name: 'admin.reports', label: 'Reports', icon: icons.reports },
+            { name: 'admin.users', label: 'Users', icon: icons.users, permission: 'manage-users' },
+            { name: 'admin.reports', label: 'Reports', icon: icons.reports, permission: 'manage-reports' },
+        ],
+    },
+    {
+        label: 'Access',
+        items: [
+            { name: 'admin.roles', label: 'Roles', icon: icons.key, permission: 'manage-roles' },
+            { name: 'admin.permissions', label: 'Permissions', icon: icons.lock, permission: 'manage-roles' },
         ],
     },
     {
         label: 'System',
-        items: [{ name: 'admin.dummy', label: 'Dummy data', icon: icons.database }],
+        items: [{ name: 'admin.dummy', label: 'Dummy data', icon: icons.database, permission: 'manage-dummy-data' }],
     },
 ];
 
+// only show what this account is actually allowed to open
+const sections = computed(() =>
+    allSections
+        .map((section) => ({ ...section, items: section.items.filter((item) => auth.can(item.permission)) }))
+        .filter((section) => section.items.length),
+);
+
 const pageTitle = computed(() => {
-    for (const section of sections) {
+    for (const section of allSections) {
         const hit = section.items.find((item) => item.name === route.name);
         if (hit) return hit.label;
     }
