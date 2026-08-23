@@ -28,10 +28,12 @@ queue. The dashboard shows totals, weekly deltas, newest members and the
 busiest categories.
 
 There's also a dummy data tool under System in the admin sidebar. It generates
-fake members who write threads and replies across your real categories, with
-votes and spread-out timestamps so lists look lived-in. Every generated record
-belongs to a user on a marker email domain, so the delete button removes all of
-it in one go and can't touch real content.
+categories (with emoji icons) and fake members who write threads and replies
+across them, with votes and spread-out timestamps so lists look lived-in - it
+works on a completely empty forum. Generated users sit on a marker email
+domain and generated categories carry a flag, so the delete button removes all
+of it in one go; real content is never touched, and a generated category that
+picked up real threads is kept.
 
 ## Roles
 

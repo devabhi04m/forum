@@ -16,13 +16,14 @@ class Category extends Model
     protected $table = 'forum_categories';
 
     protected $fillable = [
-        'parent_id', 'name', 'slug', 'description', 'icon', 'sort_order', 'is_active',
+        'parent_id', 'name', 'slug', 'description', 'icon', 'sort_order', 'is_active', 'is_dummy',
     ];
 
     protected function casts(): array
     {
         return [
             'is_active' => 'boolean',
+            'is_dummy' => 'boolean',
         ];
     }
 

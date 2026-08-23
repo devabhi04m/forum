@@ -32,7 +32,7 @@ class AdminDummyDataController extends Controller
                 'users' => $userIds->count(),
                 'threads' => Thread::whereIn('user_id', $userIds)->count(),
                 'posts' => Post::whereIn('user_id', $userIds)->count(),
-                'has_categories' => Category::where('is_active', true)->exists(),
+                'categories' => Category::where('is_dummy', true)->count(),
             ],
         ]);
     }
@@ -45,16 +45,32 @@ class AdminDummyDataController extends Controller
             'users' => ['nullable', 'integer', 'min:1', 'max:50'],
             'threads' => ['nullable', 'integer', 'min:1', 'max:100'],
             'posts' => ['nullable', 'integer', 'min:0', 'max:500'],
+            'categories' => ['nullable', 'integer', 'min:0', 'max:20'],
         ]);
-
-        $categoryIds = Category::where('is_active', true)->pluck('id');
-        abort_if($categoryIds->isEmpty(), 422, 'Create at least one active category first.');
 
         $userCount = $data['users'] ?? 5;
         $threadCount = $data['threads'] ?? 10;
         $postCount = $data['posts'] ?? 30;
+        $categoryCount = $data['categories'] ?? 3;
 
-        $created = DB::transaction(function () use ($categoryIds, $userCount, $threadCount, $postCount) {
+        // threads need somewhere to live; if nothing exists yet, make sure we generate some
+        if ($categoryCount === 0 && ! Category::where('is_active', true)->exists()) {
+            abort(422, 'There are no categories yet - set the categories field to at least 1.');
+        }
+
+        $created = DB::transaction(function () use ($userCount, $threadCount, $postCount, $categoryCount) {
+            $icons = ['💻', '🎮', '🎬', '🎵', '📚', '🏀', '✈️', '🍕', '🔧', '💬', '📣', '🌍', '🎨', '🔬'];
+
+            Category::factory()
+                ->count($categoryCount)
+                ->state(fn () => [
+                    'slug' => Str::slug(fake()->unique()->words(2, true)).'-'.Str::lower(Str::random(4)),
+                    'icon' => $icons[array_rand($icons)],
+                    'is_dummy' => true,
+                ])
+                ->create();
+
+            $categoryIds = Category::where('is_active', true)->pluck('id');
             $tagIds = Tag::pluck('id');
 
             $users = User::factory()
@@ -118,7 +134,12 @@ class AdminDummyDataController extends Controller
                 ])->save();
             }
 
-            return ['users' => $userCount, 'threads' => $threadCount, 'posts' => $postCount];
+            return [
+                'users' => $userCount,
+                'threads' => $threadCount,
+                'posts' => $postCount,
+                'categories' => $categoryCount,
+            ];
         });
 
         Cache::forget('forum.categories.tree');
@@ -136,9 +157,10 @@ class AdminDummyDataController extends Controller
             'users' => $userIds->count(),
             'threads' => Thread::whereIn('user_id', $userIds)->count(),
             'posts' => Post::whereIn('user_id', $userIds)->count(),
+            'categories' => 0,
         ];
 
-        DB::transaction(function () use ($userIds) {
+        DB::transaction(function () use ($userIds, &$deleted) {
             DB::table('notifications')
                 ->where('notifiable_type', User::class)
                 ->whereIn('notifiable_id', $userIds)
@@ -146,6 +168,16 @@ class AdminDummyDataController extends Controller
 
             // hard delete; threads, posts, votes and bookmarks cascade at the DB level
             User::whereIn('id', $userIds)->delete();
+
+            // generated categories go too, unless a real member has threads in them
+            Category::where('is_dummy', true)
+                ->get()
+                ->each(function (Category $category) use (&$deleted) {
+                    if (! Thread::withTrashed()->where('category_id', $category->id)->exists()) {
+                        $category->delete();
+                        $deleted['categories']++;
+                    }
+                });
         });
 
         Cache::forget('forum.categories.tree');
